@@ -58,14 +58,11 @@ def xray_on_call(cls, func):
                 subsegment = xray_recorder.begin_subsegment(sub_name, namespace='remote')
             else:
                 subsegment = None
-
-        try:
-            res = func(*args, **kw)
-        finally:
-            if subsegment is not None:
-                subsegment.set_sql(sql)
-                subsegment.put_annotation("sqlalchemy", class_name+'.'+func.__name__)
-                xray_recorder.end_subsegment()
+        res = func(*args, **kw)
+        if subsegment is not None:
+            subsegment.set_sql(sql)
+            subsegment.put_annotation("sqlalchemy", class_name+'.'+func.__name__)
+            xray_recorder.end_subsegment()
         return res
     return wrapper
 # URL Parse output
